@@ -47,33 +47,11 @@
         nbPkgs = self.lib.mkNbPkgs { inherit (final) system; pkgs = final; };
       in removeAttrs nbPkgs [ "pinned" "nixops19_09" "krops" ];
 
-      nixosModules.default = { config, pkgs, lib, ... }: {
+      nixosModules.default = { config, ... }: {
         imports = [ ./modules/modules.nix ];
 
-        options = with lib; {
-          nix-bitcoin.useVersionLockedPkgs = mkOption {
-            type = types.bool;
-            default = false;
-            description = ''
-              Use the nixpkgs version locked by this flake for `nix-bitcoin.pkgs`.
-              Only relevant if you are using a nixpkgs version for evaluating your system
-              that differs from the one that is locked by this flake (via input `nixpkgs`).
-              If this is the case, enabling this option may result in a more stable system
-              because the nix-bitcoin services use the exact pkgs versions that are tested
-              by nix-bitcoin.
-              The downsides are increased evaluation times and increased system
-              closure size.
-
-              If `false`, the default system pkgs are used.
-            '';
-          };
-        };
-
         config = {
-          nix-bitcoin.pkgs =
-            if config.nix-bitcoin.useVersionLockedPkgs
-            then (self.lib.mkNbPkgs { inherit (config.nixpkgs) system; }).modulesPkgs
-            else (self.lib.mkNbPkgs { inherit (pkgs) system; inherit pkgs; }).modulesPkgs;
+          nix-bitcoin.pkgs = (self.lib.mkNbPkgs { inherit (config.nixpkgs) system; }).modulesPkgs;
         };
       };
 
