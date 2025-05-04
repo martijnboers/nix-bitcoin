@@ -55,6 +55,13 @@ let
           If left empty, no address is announced.
         '';
       };
+      systemdTimeout = mkOption {
+        type = types.str;
+        default = "30min";
+        description = ''
+	  First time init should not timeout after 30min
+        '';
+      };
       package = mkOption {
         type = types.package;
         default = config.nix-bitcoin.pkgs.bitcoind;
@@ -429,8 +436,8 @@ in {
         NotifyAccess = "all";
         User = cfg.user;
         Group = cfg.group;
-        TimeoutStartSec = "30min";
-        TimeoutStopSec = "30min";
+        TimeoutStartSec = cfg.systemdTimeout;
+        TimeoutStopSec = cfg.systemdTimeout;
         ExecStart = "${cfg.package}/bin/bitcoind -datadir='${cfg.dataDir}'";
         Restart = "on-failure";
         UMask = mkIf cfg.dataDirReadableByGroup "0027";
