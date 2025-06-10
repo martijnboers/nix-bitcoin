@@ -116,13 +116,7 @@ let
   network = bitcoind.makeNetworkName "bitcoin" "regtest";
   configFile = pkgs.writeText "config" ''
     network=${network}
-    ${
-      if cfg.useBcliPlugin then ''
-        bitcoin-datadir=${config.services.bitcoind.dataDir}
-      '' else ''
-        disable-plugin=bcli
-      ''
-    }
+    ${optionalString (!cfg.useBcliPlugin) "disable-plugin=bcli"}
     ${optionalString (cfg.proxy != null) "proxy=${cfg.proxy}"}
     always-use-proxy=${boolToString cfg.always-use-proxy}
     bind-addr=${cfg.address}:${toString cfg.port}
@@ -190,6 +184,8 @@ in {
         Restart = "on-failure";
         RestartSec = "10s";
         ReadWritePaths = [ cfg.dataDir ];
+        # DB upgrades or recovery after a crash can take a while
+        TimeoutStartSec = "10m";
       } // nbLib.allowedIPAddresses cfg.tor.enforce;
       # Wait until the rpc socket appears
       postStart = ''

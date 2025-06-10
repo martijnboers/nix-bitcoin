@@ -2,8 +2,7 @@
 pkgs: pkgsUnstable:
 {
   inherit (pkgs)
-    charge-lnd
-    fulcrum
+    extra-container
     hwi
     lightning-loop
     lightning-pool
@@ -12,14 +11,15 @@ pkgs: pkgsUnstable:
   inherit (pkgsUnstable)
     bitcoin
     bitcoind
+    bitcoind-knots
     btcpayserver
+    charge-lnd
     clboss
     clightning
     electrs
     elementsd
-    extra-container
-    lnd
-    nbxplorer;
+    fulcrum
+    lnd;
 
   inherit pkgs pkgsUnstable;
 }

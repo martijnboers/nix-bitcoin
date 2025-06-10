@@ -85,7 +85,10 @@ let
       '');
 
       tests.mempool = cfg.mempool.enable;
-      services.mempool.electrumServer = "fulcrum";
+      services.mempool = {
+        electrumServer = "fulcrum";
+        settings.MEMPOOL.POOLS_JSON_URL = mkIf config.test.noConnections "disable-pool-fetching";
+      };
 
       tests.lnd = cfg.lnd.enable;
       services.lnd = {
@@ -271,17 +274,6 @@ let
         scenarios.secureNode
         ../modules/presets/hardened-extended.nix
       ];
-
-      # Patch clightning to increase the plugin init timeout.
-      # Otherwise this test can fail on slower hardware.
-      nix-bitcoin.pkgOverlays = super: self: {
-        clightning = super.clightning.overrideAttrs (old: {
-          postPatch = old.postPatch + ''
-            substituteInPlace lightningd/plugin.c \
-              --replace-fail "#define PLUGIN_MANIFEST_TIMEOUT 60" "#define PLUGIN_MANIFEST_TIMEOUT 200"
-          '';
-        });
-      };
     };
 
     netnsBase = { config, pkgs, ... }: {
